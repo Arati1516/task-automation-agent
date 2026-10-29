@@ -1,6 +1,6 @@
 import os
 import streamlit as st
-from langchain_groq import ChatGroq
+from groq import Groq
 from langchain_community.tools import DuckDuckGoSearchRun
 
 # Page Config
@@ -16,7 +16,6 @@ if st.button("Generate Brief"):
     if not topic.strip():
         st.warning("Please enter a valid topic.")
     else:
-        # Get API key from environment (Secure MLOps practice)
         groq_api_key = os.environ.get("GROQ_API_KEY")
         
         if not groq_api_key:
@@ -25,17 +24,36 @@ if st.button("Generate Brief"):
             with st.spinner(f"Stage 1: Searching the web for '{topic}'..."):
                 try:
                     search = DuckDuckGoSearchRun()
-                    search_data = search.run(topic)
+                    research_text = search.run(topic)
                 except Exception as e:
-                    search_data = f"Latest updates regarding {topic}."
+                    research_text = f"Latest updates regarding {topic}."
             
-            with st.spinner("Stage 2: Summarizing search results using LLM..."):
+            with st.spinner("Stage 2: Summarizing search results using Groq API..."):
                 try:
-                    llm = ChatGroq(model="gemma2-9b-it", temperature=0, api_key=groq_api_key)
-                    prompt = f"Topic: {topic}\nSearch Results: {search_data}\n\nTask: Provide a concise research brief of exactly three bullet points summarizing the key findings."
-                    
-                    response = llm.invoke(prompt)
-                    brief = response.content
+                    # Initialize Groq client securely using the environment API key
+                    client = Groq(api_key=groq_api_key)
+
+                    response = client.chat.completions.create(
+                        model="llama-3.1-8b-instant",  # Updated to a valid, active Groq model
+                        messages=[
+                            {
+                                "role": "system",
+                                "content": (
+                                    "Summarize the research provided into exactly "
+                                    "3 concise bullet points. Use only the supplied "
+                                    "evidence and do not invent facts."
+                                )
+                            },
+                            {
+                                "role": "user",
+                                "content": research_text
+                            }
+                        ],
+                        temperature=0.2,
+                        max_completion_tokens=300
+                    )
+
+                    brief = response.choices[0].message.content
                     
                     st.success("Workflow completed successfully!")
                     st.markdown("### 📋 Final Research Brief")
