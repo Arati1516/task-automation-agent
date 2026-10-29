@@ -1,4 +1,4 @@
-import os
+ import os
 import streamlit as st
 from langchain_groq import ChatGroq
 from langchain_community.tools import DuckDuckGoSearchRun
@@ -31,7 +31,8 @@ if st.button("Generate Brief"):
             
             with st.spinner("Stage 2: Summarizing search results using LLM..."):
                 try:
-llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0, api_key=groq_api_key)                    prompt = f"""
+                    llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0, api_key=groq_api_key)
+                    prompt = f"""
                     Topic: {topic}
                     Search Results: {search_data}
                     
