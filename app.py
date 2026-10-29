@@ -31,7 +31,7 @@ if st.button("Generate Brief"):
             
             with st.spinner("Stage 2: Summarizing search results using LLM..."):
                 try:
-                    llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0, api_key=groq_api_key)
+                    llm = ChatGroq(model="gemma2-9b-it", temperature=0, api_key=groq_api_key)
                     prompt = f"Topic: {topic}\nSearch Results: {search_data}\n\nTask: Provide a concise research brief of exactly three bullet points summarizing the key findings."
                     
                     response = llm.invoke(prompt)
